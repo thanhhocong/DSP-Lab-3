@@ -1,4 +1,4 @@
-﻿function plot_stem_discrete(n_axis, values, line_color)
+function plot_stem_discrete(n_axis, values, line_color)
     if argn(2) < 3 then line_color = 'b'; end
     N     = length(n_axis);
     n_min = min(n_axis);   n_max = max(n_axis);
@@ -68,3 +68,37 @@ disp('(c)  x(-n+4) directly: identical to (b1) -- rule confirmed');
 disp(' ');
 disp('(d) RULE: to get x(-n+k), always FOLD first, then DELAY by k.');
 disp('    Reversing the order (delay then fold) gives x(-n-k) instead.');
+disp(' ');
+n_e  = -4:5;
+Ne   = length(n_e);
+u_p2 = double(n_e >= -2);
+u_p1 = double(n_e >= -1);
+u_0  = double(n_e >= 0);
+u_m4 = double(n_e >= 4);
+xe = (1/3) * (u_p2 + u_p1 + u_0) - u_m4;
+xn_padded = zeros(1, Ne);
+for i = 1:Ne
+    nv = n_e(i);
+    if nv >= -3 & nv <= -1 then
+        xn_padded(i) = 1 + nv/3;
+    elseif nv >= 0 & nv <= 3 then
+        xn_padded(i) = 1;
+    end
+end
+scf();
+subplot(2, 1, 1);
+plot_stem_discrete(n_e, xn_padded, 'b');
+xtitle('x(n)  [original, extended view]', 'n', 'Amplitude');
+subplot(2, 1, 2);
+plot_stem_discrete(n_e, xe, 'r');
+xtitle('(e) x(n) = (1/3)[u(n+2)+u(n+1)+u(n)] - u(n-4)  [reconstructed]', 'n', 'Amplitude');
+disp('(e) x(n) expressed via u(n):');
+disp('    x(n) = (1/3)[u(n+2) + u(n+1) + u(n)] - u(n-4)');
+disp(' ');
+disp('    Verification — reconstructed values:'); disp(xe);
+disp('    Original values (extended):');          disp(xn_padded);
+if max(abs(xe - xn_padded)) < 1e-10 then
+    disp('    => Match confirmed.');
+else
+    disp('    => MISMATCH — check formula.');
+end
